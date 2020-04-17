@@ -1,0 +1,47 @@
+{
+  "name": "simplesharedlist",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Extremly lightweight app that allows users to modify a list of items at the same time.",
+  "scripts": {
+    "start": "tsc && webpack && node server/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/djmclaugh/SimpleSharedList.git"
+  },
+  "author": "",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/djmclaugh/SimpleSharedList/issues"
+  },
+  "homepage": "https://github.com/djmclaugh/SimpleSharedList#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "sqlite3": "^4.1.1",
+    "typeorm": "^0.2.24",
+    "uuid": "^7.0.3",
+    "vue": "^2.6.11",
+    "vue-class-component": "^7.2.3",
+    "ws": "^7.2.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.6",
+    "@types/node": "^13.11.1",
+    "@types/uuid": "^7.0.2",
+    "@types/ws": "^7.2.4",
+    "@typescript-eslint/eslint-plugin": "^2.28.0",
+    "@typescript-eslint/parser": "^2.28.0",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-vue": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  }
+}
