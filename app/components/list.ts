@@ -15,7 +15,8 @@ export default class ListComponent extends ListProps {
   // Methods
   private onDeleteClicked(event: any) {
     const target: HTMLButtonElement = event.target;
-    remove(target.value);
+    const error = remove(target.value);
+    this.$emit('error', error);
   }
 
   // Hooks

@@ -57,27 +57,27 @@ export function onUpdate(cb: Callback) {
   callbacks.push(cb);
 }
 
-export function add(item: string) {
-  send('add', {
+export function add(item: string): string|null {
+  return send('add', {
     item: {
       item: item,
     },
   });
 }
 
-function addWithId(item: Item) {
-  send('add', {
+function addWithId(item: Item): string|null {
+  return send('add', {
     item: item,
   });
 }
 
-export function remove(id: string) {
-  send('remove', {
+export function remove(id: string): string|null {
+  return send('remove', {
     id: id,
   });
 }
 
-export function canUndo() {
+export function canUndo(): boolean {
   if (pendingUndo != null) {
     return false;
   } else if (actions.length === 0) {
@@ -86,7 +86,7 @@ export function canUndo() {
   return true;
 }
 
-export function undo() {
+export function undo(): string|null {
   if (pendingUndo != null) {
     throw new Error('Currently processing an undo. Cannot currently commence a second one.');
   } else if (actions.length === 0) {
@@ -94,9 +94,14 @@ export function undo() {
   }
   pendingUndo = actions[actions.length - 1];
   pendingUndo.type = pendingUndo.type === 'add' ? 'remove' : 'add';
+  let error = null;
   if (pendingUndo.type === 'add') {
-    addWithId(pendingUndo.item);
+    error = addWithId(pendingUndo.item);
   } else {
-    remove(pendingUndo.item.id);
+    error = remove(pendingUndo.item.id);
   }
+  if (error) {
+    pendingUndo = null;
+  }
+  return error;
 }
