@@ -24,7 +24,8 @@ export default class NewItemInputComponent extends NewItemInputProps {
   private addItem(): void {
     const input = this.$refs.input;
     if (input.value !== '') {
-      add(input.value);
+      const error = add(input.value);
+      this.$emit('error', error);
       input.value = '';
     }
   }
