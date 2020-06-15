@@ -40,9 +40,13 @@ export default class ListComponent extends ListProps {
       }, '\u00D7');
       elements.push(this.$createElement('li', {
         key: item.id,
-      }, [itemElement, this.$createElement('span', ' - '), deleteButton]));
+      }, [itemElement, deleteButton]));
     }
 
-    return this.$createElement('ul', elements);
+    return this.$createElement('ul', {
+      class: {
+        "item-list": true,
+      },
+    }, elements);
   }
 }
