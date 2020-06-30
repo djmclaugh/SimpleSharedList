@@ -4,7 +4,8 @@
   "private": true,
   "description": "Extremly lightweight app that allows users to modify a list of items at the same time.",
   "scripts": {
-    "start": "tsc && webpack && node server/main.js",
+    "compile": "tsc && webpack",
+    "start": "npm run-script compile && node server/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

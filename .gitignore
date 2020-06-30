@@ -1,4 +1,10 @@
+# Dependencies
 node_modules
+
+# Config
+config.json
+
+# Generated files
 app/**/*.js
 server/**/*.js
 public/bundle.js

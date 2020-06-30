@@ -5,6 +5,16 @@ import * as WebSocket from 'ws';
 import { onConnect, Item } from './db';
 import { Connection } from 'typeorm';
 
+let config;
+try {
+  config = require("../config.json");
+  console.log("Successfully loaded configuration file 'config.json'");
+} catch (error) {
+  console.log("Failed to load 'config.json': " + error);
+  console.log("Using default configurations found in config_default.json instead");
+  config = require("../config_default.json");
+}
+
 const app = express();
 
 app.use(express.static('public'));

@@ -1,8 +1,18 @@
+let config;
+try {
+  config = require("../config.json");
+} catch (error) {
+  console.log(error);
+  config = require("../config_default.json");
+}
+
 type Callback = (message: any) => void;
 
 const callbacks = new Map<string, Callback[]>();
 
-const url = 'ws://server.home:8080';
+const protocol = config.certChainLocation.length > 0 ? 'wss' : 'ws';
+
+const url = protocol + "://" + config.hostname + ":" + config.port;
 let ws: WebSocket;
 
 function connect() {
