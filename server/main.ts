@@ -1,9 +1,13 @@
-import { createServer } from 'http';
-import * as express from 'express';
+import http from 'http';
+import https from 'https';
+import fs from 'fs';
+
+import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import * as WebSocket from 'ws';
-import { onConnect, Item } from './db';
+import WebSocket from 'ws';
 import { Connection } from 'typeorm';
+
+import { onConnect, Item } from './db';
 
 let config: any;
 try {
@@ -17,9 +21,14 @@ try {
 
 const app = express();
 
-app.use(express.static('public'));
+app.use(express.static('public/'));
 
-const server = createServer(app);
+const server = config.certChainLocation.length > 0
+    ? https.createServer({
+        cert: fs.readFileSync(config.certChainLocation),
+        key: fs.readFileSync(config.certKeyLocation)
+      }, app)
+    : http.createServer(app);
 
 const webSocketServer = new WebSocket.Server({ server });
 
@@ -108,5 +117,9 @@ webSocketServer.on('connection', (ws: WebSocket) => {
 });
 
 server.listen(config.port, () => {
-  console.log('Listening on port %s', config.port);
+  if (config.certChainLocation.length > 0) {
+    console.log('HTTPS server listening on port %s', config.port);
+  } else {
+    console.log('HTTP server listening on port %s', config.port);
+  }
 });

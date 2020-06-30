@@ -27,12 +27,12 @@ createConnection({
   ],
   synchronize: true,
 }).then(c => {
-  console.log('successfully connected to database');
+  console.log('Successfully connected to database');
   connection = c;
   for (const cb of callbacks) {
     cb(connection);
   }
 }).catch(error => {
-  console.log('error connecting to database');
+  console.log('Error connecting to database');
   console.log(error);
 });
