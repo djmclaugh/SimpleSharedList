@@ -5,7 +5,7 @@ import * as WebSocket from 'ws';
 import { onConnect, Item } from './db';
 import { Connection } from 'typeorm';
 
-let config;
+let config: any;
 try {
   config = require("../config.json");
   console.log("Successfully loaded configuration file 'config.json'");
@@ -107,6 +107,6 @@ webSocketServer.on('connection', (ws: WebSocket) => {
   }));
 });
 
-server.listen(8080, () => {
-  console.log('listening on port 8080');
+server.listen(config.port, () => {
+  console.log('Listening on port %s', config.port);
 });
