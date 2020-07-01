@@ -26,6 +26,19 @@ body {
   box-shadow: 0px 4px 4px 0 rgba(0,0,0,0.2);
 }
 
+.item-list .draggedover {
+  background-color: #eeeeee;
+}
+
+.item-list .dragged {
+  background-color: #cccccc;
+}
+
 .item-list li span {
   max-width: 85%;
+  cursor: default;
+}
+
+.item-list .draggedover * {
+  pointer-events: none;
 }
