@@ -6,7 +6,7 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import WebSocket from 'ws';
 
-import { onConnect, Item, items, addItem, removeItem } from './db';
+import { Item, items, addItem, removeItem, moveItem } from './db';
 
 let config: any;
 try {
@@ -72,6 +72,29 @@ webSocketServer.on('connection', (ws: WebSocket) => {
           action: {
             type: 'remove',
             item: removedItem,
+          },
+        }));
+        break;
+      }
+      case 'move': {
+        const previousIndex = items.findIndex((x: Item) => x.id === message.id);
+        let movedItem: Item;
+        try {
+          movedItem = await moveItem(message.id, message.index);
+        } catch (e) {
+          ws.send(JSON.stringify({
+            type: 'error',
+            errorMessage: e.message,
+            itemId: message.id,
+          }));
+          return;
+        }
+        ws.send(JSON.stringify({
+          type: 'confirmation',
+          action: {
+            type: 'move',
+            item: movedItem,
+            previousIndex: previousIndex,
           },
         }));
         break;

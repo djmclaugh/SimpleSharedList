@@ -1,7 +1,7 @@
 import Vue, { VNode } from 'vue';
 import Component from 'vue-class-component';
 
-import { Item, getItems, onUpdate, remove } from '../list_service';
+import { Item, getItems, onUpdate, remove, move } from '../list_service';
 
 function getListItemParent(e: Element): HTMLLIElement|null {
   if (!e) {
@@ -69,8 +69,9 @@ export default class ListComponent extends ListProps {
     const dragIndex = this.items.findIndex(i => i.id === dragID);
     const dropIndex = this.items.findIndex(i => i.id === dropID);
 
-    const dragItem = this.items.splice(dragIndex, 1)[0];
-    this.items.splice(dropIndex, 0, dragItem);
+    move(dragID, dropIndex);
+    //const dragItem = this.items.splice(dragIndex, 1)[0];
+    //this.items.splice(dropIndex, 0, dragItem);
   }
 
   private onDragEnd(event: DragEvent) {

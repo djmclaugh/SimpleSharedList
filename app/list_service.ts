@@ -5,11 +5,13 @@ type Callback = (items: Item[]) => void;
 export interface Item {
   id: string,
   item: string,
+  index: number,
 }
 
 export interface Action {
-  type: 'add'|'remove',
-  item: Item
+  type: 'add'|'remove'|'move',
+  item: Item,
+  previousIndex?: number,
 }
 
 let items: Item[] = [];
@@ -30,7 +32,13 @@ onMessage('confirmation', (message: any) => {
     actions.pop();
     pendingUndo = null;
   } else {
-    actions.push(action);
+    // There is no need to add an undo for move actions since the user can just move the item back.
+    // I prefer not to enable it because it might cause issues if another user removed an item,
+    // making the list smaller, making the undo invalid...
+    // Need to think more carfully about the whole undo feature.
+    if (action.type != 'move') {
+      actions.push(action);
+    }
   }
 });
 
@@ -77,6 +85,13 @@ export function remove(id: string): string|null {
   });
 }
 
+export function move(id: string, newPosition: number): string|null {
+  return send('move', {
+    id: id,
+    index: newPosition,
+  });
+}
+
 export function canUndo(): boolean {
   if (pendingUndo != null) {
     return false;
@@ -92,13 +107,20 @@ export function undo(): string|null {
   } else if (actions.length === 0) {
     throw new Error('No actions to undo');
   }
-  pendingUndo = actions[actions.length - 1];
-  pendingUndo.type = pendingUndo.type === 'add' ? 'remove' : 'add';
+  pendingUndo = Object.assign({}, actions[actions.length - 1]);
   let error = null;
-  if (pendingUndo.type === 'add') {
-    error = addWithId(pendingUndo.item);
-  } else {
-    error = remove(pendingUndo.item.id);
+  switch (pendingUndo.type) {
+    case 'add':
+      pendingUndo.type = 'remove';
+      error = remove(pendingUndo.item.id);
+      break;
+    case 'remove':
+      pendingUndo.type = 'add';
+      error = addWithId(pendingUndo.item);
+      break;
+    case 'move':
+      error = move(pendingUndo.item.id, pendingUndo.previousIndex!);
+      break;
   }
   if (error) {
     pendingUndo = null;

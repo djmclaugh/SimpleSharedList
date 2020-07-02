@@ -39,8 +39,12 @@ export default class NewItemInputComponent extends NewItemInputProps {
     if (a) {
       if (a.type === 'add') {
         return `Added "${a.item.item}"`;
-      } else {
+      } else if (a.type === 'remove') {
         return `Removed "${a.item.item}"`;
+      } else if (a.type === 'move') {
+        return `Moved "${a.item.item}" to index ${a.item.index + 1}`;
+      } else {
+        throw new Error('This should neve happen');
       }
     } else {
       return 'no actions';
