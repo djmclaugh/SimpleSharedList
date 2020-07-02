@@ -46,6 +46,37 @@ export async function removeItem(itemId: string): Promise<Item> {
   return items.splice(indexToRemove, 1)[0];
 }
 
+export async function moveItem(itemId: string, newPosition: number): Promise<Item> {
+  if (newPosition >= items.length || newPosition < 0) {
+    throw new Error(`Index ${newPosition} is out of range.`);
+  }
+  const indexToMove = items.findIndex((x: Item) => x.id === itemId);
+  if (indexToMove === -1) {
+    throw new Error(`No items with id ${itemId} found`);
+  }
+  await connection!.transaction(async transactionalEntityManager => {
+    const itemToMove = items[indexToMove];
+    itemToMove.index = -1;
+    await transactionalEntityManager.save(itemToMove);
+    if (indexToMove < newPosition) {
+      for (let i = indexToMove + 1; i <= newPosition; ++i) {
+        items[i].index = i - 1;
+        await transactionalEntityManager.save(items[i]);
+      }
+    } else {
+      for (let i = indexToMove - 1; i >= newPosition; --i) {
+        items[i].index = i + 1;
+        await transactionalEntityManager.save(items[i]);
+      }
+    }
+    itemToMove.index = newPosition;
+    await transactionalEntityManager.save(itemToMove);
+  });
+  const movedItem = items.splice(indexToMove, 1)[0];
+  items.splice(newPosition, 0, movedItem);
+  return movedItem;
+}
+
 const callbacks: ((connection: Connection) => void)[] = [];
 export function onConnect(cb: (connection: Connection) => void) {
   callbacks.push(cb);
@@ -65,6 +96,9 @@ createConnection({
   console.log('Successfully connected to database');
   connection = c;
   items = await connection.manager.find(Item);
+  items.sort((a, b) => {
+    return a.index - b.index;
+  });
   for (const cb of callbacks) {
     cb(connection);
   }
