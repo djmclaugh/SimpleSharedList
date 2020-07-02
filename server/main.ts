@@ -5,9 +5,8 @@ import fs from 'fs';
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import WebSocket from 'ws';
-import { Connection } from 'typeorm';
 
-import { onConnect, Item } from './db';
+import { onConnect, Item, items, addItem, removeItem } from './db';
 
 let config: any;
 try {
@@ -32,34 +31,17 @@ const server = config.certChainLocation.length > 0
 
 const webSocketServer = new WebSocket.Server({ server });
 
-let items: Item[] = [];
-
-let connection: Connection|null = null;
-
-onConnect(async(c) => {
-  connection = c;
-  items = await connection.manager.find(Item);
-});
-
 webSocketServer.on('connection', (ws: WebSocket) => {
   async function processMessage(text: string) {
     const message: any = JSON.parse(text);
     switch (message.type) {
       case 'add': {
-        const item = new Item();
-        item.item = message.item.item;
-        if (message.item.id) {
-          item.id = message.item.id;
-        } else {
-          item.id = uuidv4();
-        }
-        await connection!.manager.save(item);
-        items.push(item);
+        const addedItem = await addItem(message.item.item, message.item.id);
         ws.send(JSON.stringify({
           type: 'confirmation',
           action: {
             type: 'add',
-            item: item,
+            item: addedItem,
           },
         }));
         break;
@@ -71,29 +53,27 @@ webSocketServer.on('connection', (ws: WebSocket) => {
         }));
         break;
       case 'remove': {
-        const indexToRemove = items.findIndex((x: Item) => x.id === message.id);
-        if (indexToRemove === -1) {
+        let removedItem: Item;
+        try {
+          removedItem = await removeItem(message.id);
+        } catch (e) {
           ws.send(JSON.stringify({
             type: 'error',
-            errorMessage: `No items with id ${message.id} found`,
+            errorMessage: e.message,
             itemId: message.id,
           }));
-        } else {
-          const item = items.splice(indexToRemove, 1)[0];
-          // Save item since it will be removed once the item is deleted.
-          const itemId = item.id;
-          await connection!.manager.remove(item);
-          ws.send(JSON.stringify({
-            type: 'confirmation',
-            action: {
-              type: 'remove',
-              item: {
-                id: itemId,
-                item: item.item,
-              },
-            },
-          }));
+          return;
         }
+        // The items id has been removed from it when it got deleted from the data base.
+        // Add it back so that the client can have it.
+        removedItem.id = message.id;
+        ws.send(JSON.stringify({
+          type: 'confirmation',
+          action: {
+            type: 'remove',
+            item: removedItem,
+          },
+        }));
         break;
       }
       default:
