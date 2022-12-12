@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/djmclaugh/SimpleSharedList#readme",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "sqlite3": "^5.0.2",
     "typeorm": "^0.2.34",
     "uuid": "^8.3.2",
